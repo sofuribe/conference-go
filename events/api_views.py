@@ -5,6 +5,8 @@ from common.json import ModelEncoder
 from django.views.decorators.http import require_http_methods
 import json
 
+from .acls import get_photo
+
 
 class ConferenceListEncoder(ModelEncoder):
     model = Conference
@@ -39,7 +41,7 @@ def api_list_conferences(request):
             {"conferences": conferences},
             encoder=ConferenceListEncoder,
         )
-    else:
+    else:  # REQUEST.METHOD == "POST"
         content = json.loads(request.body)
         try:
             location = Location.objects.get(id=content["location"])
@@ -116,7 +118,7 @@ def api_show_conference(request, id):
     elif request.method == "DELETE":
         count, _ = Conference.objects.filter(id=id).delete()
         return JsonResponse({"deleted": count > 0})
-    else:
+    else:  # REQUEST.METHOD == "PUT"
         content = json.loads(request.body)
         try:
             if "location" in content:
@@ -170,7 +172,7 @@ def api_list_locations(request):
             encoder=LocationListEncoder,
             safe=False,
         )
-    else:
+    else:  # REQUEST.METHOD == "POST"
         content = json.loads(request.body)
         try:
             state = State.objects.get(abbreviation=content["state"])
@@ -180,6 +182,10 @@ def api_list_locations(request):
                 {"message": "Invalid state abbreviation"},
                 status=400,
             )
+
+        photo = get_photo(content["city"], content["state"].abbreviation)
+        content.update(photo)
+
         location = Location.objects.create(**content)
         return JsonResponse(
             location,
@@ -196,6 +202,7 @@ class LocationDetailEncoder(ModelEncoder):
         "room_count",
         "created",
         "updated",
+        "picture_url",
     ]
 
     def get_extra_data(self, o):
@@ -230,7 +237,7 @@ def api_show_location(request, id):
     elif request.method == "DELETE":
         count, _ = Location.objects.filter(id=id).delete()
         return JsonResponse({"deleted": count > 0})
-    else:
+    else:  # REQUEST METHOD == "PUT"
         content = json.loads(request.body)
         try:
             if "state" in content:
