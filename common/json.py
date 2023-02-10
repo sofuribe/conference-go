@@ -25,6 +25,7 @@ class QuerySetEncoder(JSONEncoder):
 
 class ModelEncoder(DateEncoder, QuerySetEncoder, JSONEncoder):
     encoders = {}
+
     def default(self, o):
         #   if the object to decode is the same class as what's in the
         #   model property, then
@@ -34,9 +35,9 @@ class ModelEncoder(DateEncoder, QuerySetEncoder, JSONEncoder):
             d = {}
             # if o has the attribute get_api_url
             if hasattr(o, "get_api_url"):
-            #    then add its return value to the dictionary with the key "href"
+                #    then add its return value to the dictionary with the key "href"
                 d["href"] = o.get_api_url()
-            #for each name in the properties list
+            # for each name in the properties list
             for property in self.properties:
                 #  * get the value of that property from the model instance
                 #   given just the property name
