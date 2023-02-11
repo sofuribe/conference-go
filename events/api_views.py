@@ -110,6 +110,10 @@ def api_show_conference(request, id):
     """
     if request.method == "GET":
         conference = Conference.objects.get(id=id)
+
+        def get_weather_data(city, state):
+            pass
+
         return JsonResponse(
             conference,
             encoder=ConferenceDetailEncoder,
