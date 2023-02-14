@@ -11,7 +11,7 @@ class DateEncoder(JSONEncoder):
             return o.isoformat()
         # otherwise
         else:
-            #    return super().default(o)
+            # return super().default(o)
             return super().default(o)
 
 
